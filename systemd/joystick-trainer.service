@@ -1,0 +1,9 @@
+[Unit]
+Description=Joystick to PPM trainer signal
+
+[Service]
+ExecStart=%h/joystick-trainer/.venv/bin/joystick-trainer %h/joystick-trainer/config.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

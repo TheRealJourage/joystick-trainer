@@ -1,0 +1,24 @@
+[project]
+name = "joystick-trainer"
+version = "0.1.0"
+description = "USB joystick on a Raspberry Pi to PPM trainer signal for an EdgeTX radio"
+requires-python = ">=3.11"
+dependencies = ["evdev", "pyyaml"]
+
+[project.optional-dependencies]
+pi = ["rpi-lgpio"]
+dev = ["pytest"]
+
+[project.scripts]
+joystick-trainer = "joystick_trainer.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,20 @@
+device: "joystick"        # substring of the device name, or /dev/input/eventN
+channels: 8
+rate_hz: 50
+on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us
+output:
+  sink: print             # print | lgpio
+  # pin: 18               # BCM number, lgpio only (open until the jack is measured)
+  # chip: 4               # gpiochip of the Pi 5 header (4 on older kernels, 0 on newer; check gpiodetect)
+  # pulse_us: 300
+  # frame_us: 22500
+  # active_high: true
+defaults_us:
+  3: 1000                 # throttle low when nothing is mapped yet
+axes:
+  - {source: ABS_X,  channel: 1, expo: 0.2}               # roll
+  - {source: ABS_Y,  channel: 2, expo: 0.2, invert: true} # pitch
+  - {source: ABS_Z,  channel: 3, unipolar: true}          # throttle
+  - {source: ABS_RZ, channel: 4}                          # yaw
+buttons:
+  - {source: BTN_TRIGGER, channel: 5, toggle: true}       # arm

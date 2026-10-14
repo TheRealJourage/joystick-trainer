@@ -1,0 +1,24 @@
+import yaml
+
+from .mapper import AxisMap, ButtonMap, Mapping
+
+
+def load(path):
+    with open(path) as handle:
+        raw = yaml.safe_load(handle)
+    mapping = Mapping(
+        channel_count=raw.get("channels", 8),
+        axes=[AxisMap(**a) for a in raw.get("axes", [])],
+        buttons=[ButtonMap(**b) for b in raw.get("buttons", [])],
+        defaults_us={int(k): v for k, v in raw.get("defaults_us", {}).items()},
+    )
+    for item in mapping.axes + mapping.buttons:
+        if not 1 <= item.channel <= mapping.channel_count:
+            raise ValueError(f"{item.source}: channel {item.channel} outside 1..{mapping.channel_count}")
+    return {
+        "device": raw["device"],
+        "mapping": mapping,
+        "output": raw.get("output", {}),
+        "on_lost": raw.get("on_lost", "stop"),
+        "rate_hz": raw.get("rate_hz", 50),
+    }
