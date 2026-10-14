@@ -11,6 +11,7 @@ dev = ["pytest"]
 
 [project.scripts]
 joystick-trainer = "joystick_trainer.cli:main"
+ppmcheck = "joystick_trainer.ppmcheck:main"
 
 [build-system]
 requires = ["setuptools>=68"]

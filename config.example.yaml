@@ -3,7 +3,8 @@ channels: 8
 rate_hz: 50
 on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us
 output:
-  sink: print             # print | lgpio
+  sink: print             # print | pio | lgpio
+  # helper: native/ppm_pio  # pio only; build with `make -C native ppm_pio` on the Pi
   # pin: 18               # BCM number, lgpio only (open until the jack is measured)
   # chip: 4               # gpiochip of the Pi 5 header (4 on older kernels, 0 on newer; check gpiodetect)
   # pulse_us: 300

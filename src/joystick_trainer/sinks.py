@@ -1,6 +1,7 @@
 import ctypes
 import multiprocessing
 import os
+import subprocess
 import time
 
 from .ppm import frame_edges
@@ -77,11 +78,52 @@ class LgpioSink:
         self._process.join()
 
 
+class PioSink:
+    """PPM from the RP1 PIO through the native helper (native/ppm_pio, built on the Pi)."""
+
+    def __init__(self, pin, helper="native/ppm_pio", channels=8, pulse_us=300, frame_us=22500,
+                 active_high=True, pio_hz=None):
+        command = [helper, "--gpio", str(pin), "--channels", str(channels),
+                   "--pulse-us", str(pulse_us), "--frame-us", str(frame_us)]
+        if not active_high:
+            command.append("--active-low")
+        if pio_hz is not None:
+            command += ["--pio-hz", str(pio_hz)]
+        self._process = subprocess.Popen(command, stdin=subprocess.PIPE, text=True, bufsize=1)
+        self._last = None
+
+    def _send(self, line):
+        try:
+            self._process.stdin.write(line + "\n")
+            self._process.stdin.flush()
+        except BrokenPipeError:
+            raise RuntimeError("ppm_pio helper exited") from None
+
+    def set_channels(self, channels):
+        if channels != self._last:
+            self._send(" ".join(str(c) for c in channels))
+            self._last = list(channels)
+
+    def stop(self):
+        self._send("stop")
+        self._last = None
+
+    def close(self):
+        try:
+            self._send("quit")
+        except RuntimeError:
+            pass
+        self._process.stdin.close()
+        self._process.wait(timeout=2)
+
+
 def make_sink(output):
     kind = output.get("sink", "print")
     options = {k: v for k, v in output.items() if k != "sink"}
     if kind == "print":
         return PrintSink(**options)
+    if kind == "pio":
+        return PioSink(**options)
     if kind == "lgpio":
         return LgpioSink(**options)
     raise ValueError(f"unknown sink {kind!r}")

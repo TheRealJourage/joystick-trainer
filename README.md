@@ -19,7 +19,16 @@ Find axis and button names with `.venv/bin/python -m evdev.evtest`.
 - `print`: prints channel values, for development.
 - `lgpio`: software-timed PPM in a separate process (SCHED_FIFO if permitted). Bring-up backend;
   jitter not measured. Needs `pip install '.[pi]'` on the Pi.
-- PIO via piolib on the RP1: not written yet.
+- `pio`: PIO on the RP1 through `native/ppm_pio` (C, piolib). Compiles against piolib on x86; never run
+  on a Pi. `--pio-hz` (default 200 MHz) is an assumption to verify.
+
+## Docs
+
+- `docs/jack-measurement.md`: measure the Pocket DSC jack at home.
+- `docs/edgetx-setup.md`: trainer settings on the Pocket.
+- `docs/parts-and-wiring.md`: parts and planned wiring.
+- `scripts/setup-pi.sh`: one-shot Pi setup (untested).
+- `ppmcheck capture.csv`: analyse a logic-analyzer export (time_seconds,level).
 
 ## Safety
 
