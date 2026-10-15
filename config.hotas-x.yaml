@@ -1,0 +1,25 @@
+# Thrustmaster T.Flight Hotas X (USB 044f:b108). Verified 2026-10-15 on the Pi 5 with sink: print:
+# every mapped axis reaches 1000..2000 us, throttle idle = 1000 (raw ABS_Z 255 -> needs invert).
+# Unmapped: ABS_THROTTLE (throttle rocker), ABS_HAT0X/Y (coolie hat), other buttons.
+# Copy to config.yaml to use it.
+device: "T.Flight Hotas X"
+channels: 8
+rate_hz: 50
+on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us
+output:
+  sink: print             # print | pio | lgpio
+  # helper: native/ppm_pio  # pio only; build with `make -C native ppm_pio` on the Pi
+  # pin: 18               # BCM number, lgpio only (open until the jack is measured)
+  # chip: 0               # Pi 5 header is gpiochip0 (pinctrl-rp1) on this kernel
+  # pulse_us: 300
+  # frame_us: 22500
+  # active_high: true
+defaults_us:
+  3: 1000                 # throttle low when nothing is mapped yet
+axes:
+  - {source: ABS_X,  channel: 1, expo: 0.2}               # roll
+  - {source: ABS_Y,  channel: 2, expo: 0.2, invert: true} # pitch
+  - {source: ABS_Z,  channel: 3, unipolar: true, invert: true} # throttle lever; Hotas X idle = raw 255
+  - {source: ABS_RZ, channel: 4}                          # yaw = stick twist
+buttons:
+  - {source: BTN_TRIGGER, channel: 5, toggle: true}       # arm: each trigger press flips it; starts disarmed
