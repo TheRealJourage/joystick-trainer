@@ -32,6 +32,8 @@ Find axis and button names with `.venv/bin/python -m evdev.evtest`.
 - `scripts/uninstall-pi.sh [--delete-repo]`: undoes exactly what `.install-state` records (verified: dpkg,
   `/usr/local`, groups, linger and user units identical to before the install).
 - `ppmcheck capture.csv`: analyse a logic-analyzer export (time_seconds,level).
+- `scripts/read_joy_windows.py`: read the Pocket as USB joystick on Windows (no install) to check
+  what arrives over the trainer link.
 
 ## Safety
 

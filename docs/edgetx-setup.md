@@ -30,6 +30,17 @@ Radio settings > Trainer. One row per control, default mode is Replace:
   them with Special function **Trainer** value **Chans** (all channels) or read them in mixes.
   How exactly channel 5+ reaches a mix is not confirmed by the pages read; check on the radio.
 
+## Found on the Pocket (2026-10-15)
+
+- Model Setup had no Trainer section at first. It appears after Model Setup > Enabled Features >
+  Trainer = On (it was Global; presumably the radio-wide setting hides it, not checked).
+- Special Function values for Trainer on the Pocket: Sticks, Rud, Ele, Thr, Ail, Chans.
+  `Sticks` is what the manual calls Axis.
+- The new model had a Special Function `SC down | Override CH1 | 0` (created by accident while
+  setting up); it was replaced by the trainer line. Check for such lines before testing.
+- PPM frame defaults on the Pocket: 22.5 ms, 300 us, polarity "-" = matches the measured signal
+  and `active_high: false`.
+
 ## 3. The kill switch
 
 Special Functions > new line > switch = a physical switch of your choice > function **Trainer** >

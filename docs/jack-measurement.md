@@ -51,4 +51,22 @@ Detect: with a 3-pole plug only tip, ring and sleeve are reachable; the detect c
 identified. The Pocket (Master/Jack) showed "Trainer signal lost" once while the Pi was being
 power-cycled with the tip connected; cause not verified.
 
-Not yet tested: Pi -> Pocket (Master/Jack).
+## Pi -> Pocket (2026-10-15)
+
+Pi GPIO17 -> same series resistor -> tip, GND -> sleeve; `sink: lgpio`, `pin: 17`, `chip: 0`,
+`active_high: false`, 300 us / 22.5 ms. Pocket: model with Internal RF off, Trainer mode Master/Jack,
+Special Function `ON | Trainer | Sticks`. Checked through the Pocket's USB joystick on a Windows PC
+(`scripts/read_joy_windows.py`, HID 1209:4f54), Pi logging what it sent at the same time:
+
+| Channel | Pi sent (us) | Pocket USB axis (0..65535) |
+|---------|--------------|----------------------------|
+| 1 ail | 1000-2000 | X 320-64477 |
+| 2 ele | 1000-2000 | Y 704-64798 |
+| 3 thr | 1000-1925 | Z 512-59988 |
+| 4 rud | 1000-2000 | V 704-64798 |
+
+- The Pocket shows "Trainer signal recovered" when the Pi starts sending and "Trainer signal lost"
+  when it stops; after the loss its outputs follow its own sticks again.
+- A first run reached only part of the range on ch1/ch4: the stick was not fully deflected, not a
+  limit in the radio (second run above).
+- Channel 5 (arm) does not pass with `Sticks`; needs `Chans` (not tested).
