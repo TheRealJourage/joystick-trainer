@@ -1,6 +1,7 @@
 import ctypes
 import multiprocessing
 import os
+import signal
 import subprocess
 import time
 
@@ -25,10 +26,15 @@ class PrintSink:
         pass
 
 
-def _output_loop(shared, running, pin, params):
-    """Software-timed PPM on one GPIO. Bring-up backend: jitter is not measured."""
+def _output_loop(shared, running, shutdown, pin, params):
+    """Software-timed PPM on one GPIO. Bring-up backend: jitter is not measured.
+
+    Exits via the `shutdown` flag (set by close() or SIGTERM) instead of an exception, so the cleanup
+    below always runs: raising from a signal handler inside the timing loop skipped it in tests.
+    """
     import lgpio
 
+    signal.signal(signal.SIGTERM, lambda *_: setattr(shutdown, "value", True))
     try:
         os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(50))
     except PermissionError:
@@ -37,19 +43,23 @@ def _output_loop(shared, running, pin, params):
     idle = 0 if params["active_high"] else 1
     lgpio.gpio_claim_output(handle, pin, idle)
     try:
-        while True:
+        while not shutdown.value:
             if not running.value:
                 lgpio.gpio_write(handle, pin, idle)
                 time.sleep(0.01)
                 continue
             deadline = time.perf_counter_ns()
             for level, duration in frame_edges(list(shared), **{k: v for k, v in params.items() if k != "chip"}):
+                if shutdown.value:
+                    break
                 lgpio.gpio_write(handle, pin, level)
                 deadline += duration * 1000
                 while time.perf_counter_ns() < deadline:
                     pass
     finally:
         lgpio.gpio_write(handle, pin, idle)
+        # Releasing the line keeps it an output at its last level on the Pi 5; hand it back as input.
+        lgpio.gpio_claim_input(handle, pin)
         lgpio.gpiochip_close(handle)
 
 
@@ -57,10 +67,12 @@ class LgpioSink:
     def __init__(self, pin, chip=4, channels=8, pulse_us=300, frame_us=22500, active_high=True):
         self._shared = multiprocessing.Array(ctypes.c_int, [1500] * channels, lock=False)
         self._running = multiprocessing.Value(ctypes.c_bool, False, lock=False)
+        self._shutdown = multiprocessing.Value(ctypes.c_bool, False, lock=False)
         params = {"pulse_us": pulse_us, "frame_us": frame_us, "active_high": active_high}
         self._chip = chip
         self._process = multiprocessing.Process(
-            target=_output_loop, args=(self._shared, self._running, pin, {**params, "chip": chip}), daemon=True
+            target=_output_loop, args=(self._shared, self._running, self._shutdown, pin, {**params, "chip": chip}),
+            daemon=True,
         )
         self._process.start()
 
@@ -74,8 +86,11 @@ class LgpioSink:
 
     def close(self):
         self.stop()
-        self._process.terminate()
-        self._process.join()
+        self._shutdown.value = True
+        self._process.join(1)
+        if self._process.is_alive():
+            self._process.terminate()
+            self._process.join()
 
 
 class PioSink:

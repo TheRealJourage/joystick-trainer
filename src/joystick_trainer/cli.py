@@ -1,4 +1,6 @@
 import argparse
+import signal
+import sys
 import time
 
 from . import config as config_module
@@ -45,6 +47,8 @@ def main():
     args = parser.parse_args()
     cfg = config_module.load(args.config)
     sink = make_sink(cfg["output"])
+    # SIGTERM (systemd stop, timeout) must close the sink too, or the GPIO stays an output.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     try:
         run(cfg, sink)
     except KeyboardInterrupt:
