@@ -9,11 +9,11 @@ on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us
 output:
   sink: print             # print | pio | lgpio
   # helper: native/ppm_pio  # pio only; build with `make -C native ppm_pio` on the Pi
-  # pin: 18               # BCM number, lgpio only (open until the jack is measured)
+  # pin: 17               # BCM; Pocket DSC tip via 1-5 kOhm series resistor (docs/jack-measurement.md)
   # chip: 0               # Pi 5 header is gpiochip0 (pinctrl-rp1) on this kernel
   # pulse_us: 300
   # frame_us: 22500
-  # active_high: true
+  # active_high: false    # Pocket PPM is negative: idles high, 300 us pulses low (measured)
 defaults_us:
   3: 1000                 # throttle low when nothing is mapped yet
 axes:
