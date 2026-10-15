@@ -52,6 +52,13 @@ fly the model again. This is the manual override; keep it within reach of a fing
 The virtual switch **Tnr** is ON while the trainer link is active. It can drive a special
 function or a curve, e.g. an audible warning when the link drops. Not tested.
 
+Set up and tested on our Pocket (2026-10-15): SF1 = `SD down | Trainer | Sticks | on`. SD is a
+latching 2-position switch: down = the Pi flies, up = the Pocket's own sticks. Checked with the Pi
+sending, Pocket and Hotas sticks held at different positions: the Pocket's output followed the
+Hotas with SD down and its own stick with SD up, in both directions (seen on the radio and in the
+USB joystick readout). Still to do: preflight switch check SD up, so loading the model warns if
+the Pi would already be in control.
+
 ## 4. Open: behaviour on signal loss
 
 The manual pages read do not describe what happens when the PPM signal stops. Test with props
