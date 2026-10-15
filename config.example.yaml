@@ -5,7 +5,7 @@ on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us
 output:
   sink: print             # print | pio | lgpio
   # helper: native/ppm_pio  # pio only; build with `make -C native ppm_pio` on the Pi
-  # pin: 18               # BCM number, lgpio only (open until the jack is measured)
+  # pin: 17               # BCM 17 = header pin 11; measured for the Pocket, docs/SETUP.md
   # chip: 4               # gpiochip of the Pi 5 header (4 on older kernels, 0 on newer; check gpiodetect)
   # pulse_us: 300
   # frame_us: 22500

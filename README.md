@@ -1,45 +1,55 @@
 # joystick-trainer
 
-USB joystick on a Raspberry Pi 5 -> PPM on the trainer jack (DSC) of a RadioMaster Pocket
-(EdgeTX, Trainer = Master/Jack) -> the radio's own ELRS link to the aircraft.
+Fly an RC model with a USB joystick: a Raspberry Pi 5 reads the joystick and sends PPM into the
+trainer (DSC) jack of a RadioMaster Pocket (EdgeTX, Trainer = Master/Jack); the Pocket transmits to
+the model over its own link. A switch on the radio (SD) hands control back to the radio's sticks.
 
-Status: core software only. Not yet run against a real radio. The jack pinout of the Pocket is
-unmeasured (see docs/jack-measurement.md); do not connect the Pi to the jack before it is.
+**Status (2026-10-15):** working on the bench with a test model that does not transmit. Verified:
+joystick -> Pi (all axes 1000-2000 us), Pocket jack measured (tip = PPM, negative polarity, 3.3 V),
+Pi -> Pocket (all four stick channels arrive over the full range), signal lost/recovered on stop/start,
+kill switch. **Not flight-ready**: crash behaviour, arm channel and timing jitter are untested, see
+`docs/SETUP.md` section 11.
 
-## Run (dry run, no GPIO)
+## Rebuild it
 
-    python3 -m venv .venv && .venv/bin/pip install -e '.[dev]'
-    cp config.example.yaml config.yaml    # set device and axes
-    .venv/bin/joystick-trainer config.yaml
+Follow **`docs/SETUP.md`** from section 0. Short version once the hardware is wired:
 
-Find axis and button names with `.venv/bin/python -m evdev.evtest`.
+    scripts/setup-pi.sh                                   # reversible, see .install-state
+    .venv/bin/joystick-trainer-calibrate config.yaml      # guided: hold each position, press Enter
+    .venv/bin/joystick-trainer config.yaml                # dry run, prints channel values
+    .venv/bin/joystick-trainer-calibrate --output lgpio config.lgpio.yaml
+    .venv/bin/joystick-trainer config.lgpio.yaml          # PPM on GPIO17 (header pin 11)
 
-## Output backends
+Remove everything: `scripts/uninstall-pi.sh --delete-repo`.
 
-- `print`: prints channel values, for development.
-- `lgpio`: software-timed PPM in a separate process (SCHED_FIFO if permitted). Bring-up backend;
-  jitter not measured. Needs `pip install '.[pi]'` on the Pi.
-- `pio`: PIO on the RP1 through `native/ppm_pio` (C, piolib). Compiles against piolib on x86; never run
-  on a Pi. `--pio-hz` (default 200 MHz) is an assumption to verify.
+Wiring (Pocket, measured): GPIO17 (pin 11) -> 1-10 kOhm -> jack tip; GND (pin 6) -> jack sleeve;
+ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md` section 2).
 
 ## Docs
 
-- `docs/jack-measurement.md`: measure the Pocket DSC jack at home.
-- `docs/edgetx-setup.md`: trainer settings on the Pocket.
-- `docs/parts-and-wiring.md`: parts and planned wiring.
-- `scripts/setup-pi.sh`: Pi setup, tested on a Pi 5 (Trixie, Python 3.13). Records everything it changes
-  outside the repo in `.install-state`; piolib goes into `.piolib/`, not `/usr/local`.
-- `scripts/uninstall-pi.sh [--delete-repo]`: undoes exactly what `.install-state` records (verified: dpkg,
-  `/usr/local`, groups, linger and user units identical to before the install).
-- `ppmcheck capture.csv`: analyse a logic-analyzer export (time_seconds,level).
-- `scripts/read_joy_windows.py`: read the Pocket as USB joystick on Windows (no install) to check
-  what arrives over the trainer link.
+| File | Content |
+|------|---------|
+| `docs/SETUP.md` | the full procedure, values and gotchas |
+| `docs/jack-measurement.md` | measuring the DSC jack, raw results |
+| `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
+| `docs/parts-and-wiring.md` | parts and wiring |
+| `AGENTS.md` | notes for an AI assistant continuing this work |
 
-## Safety
+## Output backends
 
-`on_lost: stop` emits no PPM when the joystick disappears. What the Pocket then does with a
-missing trainer signal is not verified; test with props off and no battery.
+- `print`: prints channel values when they change (dry run).
+- `lgpio`: software-timed PPM in a separate process (SCHED_FIFO if permitted). Tested against the
+  Pocket; jitter not measured. Hands the pin back as input on exit.
+- `pio`: PIO on the RP1 through `native/ppm_pio` (C, piolib). Built by `setup-pi.sh`, never run on a
+  Pi; `--pio-hz` (default 200 MHz) is an assumption to verify.
+
+## Tools
+
+- `ppmcheck [--active-low] capture.csv`: analyse an edge CSV (time_seconds,level).
+- `scripts/capture_gpio.py`: record a Pi GPIO as such a CSV (input only).
+- `scripts/read_joy_windows.py`: read the Pocket as USB joystick on Windows.
 
 ## Tests
 
     .venv/bin/python -m pytest
+    sudo .venv/bin/python -m pytest tests/test_calibrate_uinput.py   # on the Pi: end-to-end calibration
