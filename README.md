@@ -27,7 +27,10 @@ Find axis and button names with `.venv/bin/python -m evdev.evtest`.
 - `docs/jack-measurement.md`: measure the Pocket DSC jack at home.
 - `docs/edgetx-setup.md`: trainer settings on the Pocket.
 - `docs/parts-and-wiring.md`: parts and planned wiring.
-- `scripts/setup-pi.sh`: one-shot Pi setup (untested).
+- `scripts/setup-pi.sh`: Pi setup, tested on a Pi 5 (Trixie, Python 3.13). Records everything it changes
+  outside the repo in `.install-state`; piolib goes into `.piolib/`, not `/usr/local`.
+- `scripts/uninstall-pi.sh [--delete-repo]`: undoes exactly what `.install-state` records (verified: dpkg,
+  `/usr/local`, groups, linger and user units identical to before the install).
 - `ppmcheck capture.csv`: analyse a logic-analyzer export (time_seconds,level).
 
 ## Safety
