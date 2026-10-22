@@ -10,6 +10,10 @@ output:
   # pulse_us: 300
   # frame_us: 22500
   # active_high: true
+# display:                # live channel bars, see docs/DISPLAY.md
+#   enabled: true
+#   host: 127.0.0.1
+#   port: 5600
 defaults_us:
   3: 1000                 # throttle low when nothing is mapped yet
 axes:

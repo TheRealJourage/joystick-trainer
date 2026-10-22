@@ -14,6 +14,7 @@ pygame = ["pygame"]
 joystick-trainer = "joystick_trainer.cli:main"
 ppmcheck = "joystick_trainer.ppmcheck:main"
 joystick-trainer-calibrate = "joystick_trainer.calibrate:main"
+joystick-trainer-display = "joystick_trainer.display:main"
 
 [build-system]
 requires = ["setuptools>=68"]

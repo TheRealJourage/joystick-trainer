@@ -7,9 +7,15 @@ from . import config as config_module
 from .joystick import Joystick
 from .mapper import Mapper
 from .sinks import make_sink
+from .status import StatusPublisher
 
 
-def run(cfg, sink, connect=Joystick):
+class _NoStatus:
+    def publish(self, *_):
+        pass
+
+
+def run(cfg, sink, connect=Joystick, status=_NoStatus()):
     mapping = cfg["mapping"]
     mapper = Mapper(mapping)
     axes = [a.source for a in mapping.axes]
@@ -17,6 +23,13 @@ def run(cfg, sink, connect=Joystick):
     period = 1.0 / cfg["rate_hz"]
     joystick = None
     next_retry = 0.0
+    sending, last = False, mapper.initial_channels()
+
+    def emit(channels):
+        nonlocal sending, last
+        sink.set_channels(channels)
+        sending, last = True, channels
+
     while True:
         started = time.monotonic()
         if joystick is None and started >= next_retry:
@@ -33,12 +46,14 @@ def run(cfg, sink, connect=Joystick):
                 joystick = None
                 if cfg["on_lost"] == "stop":
                     sink.stop()
+                    sending = False
                 else:
-                    sink.set_channels(mapper.initial_channels())
+                    emit(mapper.initial_channels())
             else:
-                sink.set_channels(mapper.channels(joystick.state))
+                emit(mapper.channels(joystick.state))
         else:
             time.sleep(period)
+        status.publish(sending, last, joystick is not None)
 
 
 def joystick_class(source):
@@ -54,11 +69,14 @@ def main():
     parser.add_argument("config")
     args = parser.parse_args()
     cfg = config_module.load(args.config)
-    sink = make_sink(cfg["output"])
+    sink = make_sink(cfg["output"], cfg["mapping"].channel_count)
+    display = cfg["display"]
+    status = (StatusPublisher(display["host"], display["port"], frame_us=cfg["output"].get("frame_us", 22500))
+              if display["enabled"] else _NoStatus())
     # SIGTERM (systemd stop, timeout) must close the sink too, or the GPIO stays an output.
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     try:
-        run(cfg, sink, connect=joystick_class(cfg["input"]))
+        run(cfg, sink, connect=joystick_class(cfg["input"]), status=status)
     except KeyboardInterrupt:
         pass
     finally:

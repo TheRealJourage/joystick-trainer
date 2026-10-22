@@ -215,6 +215,15 @@ V 704-64798.
 Pi sending, Pocket throttle stick and joystick throttle at clearly different positions. Flip SD:
 down = Pocket output follows the joystick, up = it follows its own stick. Tested and working.
 
+### 9d. Channel display (optional)
+
+`docs/DISPLAY.md` (German): Touch Display 2 power uses pins 2 and 6, so the trainer cable's GND moves to
+**pin 9**. Start `.venv/bin/joystick-trainer-display` in the Pi's desktop session, then the trainer.
+Not yet tested on a real display; Pi OS Lite does not work with the pip pygame (no kmsdrm).
+
+Channel count is `channels:` (default 8); `channels * 2000 + 3000` must not exceed `frame_us`
+(at most 9 at 22500). The config is rejected at load otherwise. Only 8 channels at 22.5 ms are tested.
+
 ## 10. Running it as a service
 
 ```

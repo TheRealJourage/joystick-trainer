@@ -18,6 +18,7 @@ measuring); you run commands on the Pi and read the results.
 | `src/joystick_trainer/cli.py` | `joystick-trainer config.yaml`: main loop, joystick -> mapper -> sink |
 | `src/joystick_trainer/calibrate.py` | `joystick-trainer-calibrate`: interactive axis/direction/button detection, writes config |
 | `src/joystick_trainer/pygame_input.py` | optional pygame/SDL input (`input: pygame`), same interface as `joystick.py` |
+| `src/joystick_trainer/status.py`, `display.py` | UDP status from the main loop; `joystick-trainer-display` bar chart (pygame) |
 | `src/joystick_trainer/mapper.py` | axis/button -> channel us (deadzone, expo, invert, unipolar, toggle) |
 | `src/joystick_trainer/sinks.py` | `print`, `lgpio` (software PPM, tested), `pio` (RP1 PIO helper, never run on a Pi) |
 | `src/joystick_trainer/ppm.py`, `ppmcheck.py` | PPM frame generation; analysis of a captured edge CSV |
@@ -28,6 +29,7 @@ measuring); you run commands on the Pi and read the results.
 | `config.hotas-x.yaml` | verified config for the Thrustmaster T.Flight Hotas X |
 | `docs/ANLEITUNG.md` | beginner guide (German) for people without Linux/GitHub knowledge; keep it in step with SETUP.md |
 | `docs/PYGAME.md` | add-on guide (German) for the pygame input |
+| `docs/DISPLAY.md` | add-on guide (German) for the Touch Display 2 channel display |
 | `docs/jack-measurement.md` | how the jack was measured, raw voltages, capture result |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
 | `docs/captures/` | raw captures referenced by the docs |

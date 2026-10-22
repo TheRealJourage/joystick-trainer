@@ -7,6 +7,7 @@ import types
 import pytest
 
 from joystick_trainer import cli
+from joystick_trainer.mapper import Mapping
 from joystick_trainer.sinks import LgpioSink
 
 
@@ -64,12 +65,12 @@ def test_main_closes_sink_on_sigterm(monkeypatch, tmp_path):
         def close(self):
             closed.append(True)
 
-    def run(cfg, sink, connect):
+    def run(cfg, sink, **_):
         os.kill(os.getpid(), signal.SIGTERM)
         time.sleep(1)
 
-    monkeypatch.setattr(cli.config_module, "load", lambda path: {"output": {}, "input": "evdev"})
-    monkeypatch.setattr(cli, "make_sink", lambda output: Sink())
+    monkeypatch.setattr(cli.config_module, "load", lambda path: {"output": {}, "input": "evdev", "mapping": Mapping(), "display": {"enabled": False}})
+    monkeypatch.setattr(cli, "make_sink", lambda output, channels: Sink())
     monkeypatch.setattr(cli, "run", run)
     monkeypatch.setattr(sys, "argv", ["joystick-trainer", "config.yaml"])
     previous = signal.getsignal(signal.SIGTERM)

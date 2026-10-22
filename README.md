@@ -35,6 +35,7 @@ ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md
 |------|---------|
 | `docs/ANLEITUNG.md` | beginner guide in German, no prior knowledge needed |
 | `docs/PYGAME.md` | add-on guide (German): read the joystick through pygame instead of evdev |
+| `docs/DISPLAY.md` | add-on guide (German): live channel bars on a Raspberry Pi Touch Display 2 |
 | `docs/SETUP.md` | the full procedure, values and gotchas |
 | `docs/jack-measurement.md` | measuring the DSC jack, raw results |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
@@ -55,6 +56,17 @@ ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md
   Pocket; jitter not measured. Hands the pin back as input on exit.
 - `pio`: PIO on the RP1 through `native/ppm_pio` (C, piolib). Built by `setup-pi.sh`, never run on a
   Pi; `--pio-hz` (default 200 MHz) is an assumption to verify.
+
+## Channel display
+
+`joystick-trainer-display` (pygame, needs a desktop session) shows one bar per channel and the state
+(sending / stopped / no data). The trainer sends its current channels as JSON over UDP to
+127.0.0.1:5600 at 20 Hz, fire and forget (`display:` in the config, `enabled: false` to turn it off).
+Rendering verified headless for 8 and 16 channels; not yet run on a real Touch Display 2. With the
+display powered from pins 2/6, the trainer cable's GND moves to pin 9. See `docs/DISPLAY.md`.
+
+Channel count: `channels:` (default 8). It must fit the frame: `channels * 2000 + 3000 <= frame_us`,
+so at most 9 at 22.5 ms, 16 needs 35 ms. Checked when the config is loaded.
 
 ## Tools
 

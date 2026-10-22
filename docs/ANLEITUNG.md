@@ -264,6 +264,10 @@ Erscheint gar nichts, wenn du den Joystick bewegst: Abschnitt 12.
 z. B. wenn dein Joystick oder Gamepad hier nicht gefunden wird. Das steht in der Zusatzanleitung
 [`PYGAME.md`](PYGAME.md).
 
+**Kanalanzeige:** Mit einem Raspberry Pi Touch Display 2 kannst du live sehen, welche Werte an die
+Fernsteuerung gehen. Das steht in der Zusatzanleitung [`DISPLAY.md`](DISPLAY.md). **Achtung:** Mit
+Display kommt die Masse des Trainer-Kabels in Schritt 9 auf **Pin 9** statt Pin 6.
+
 ## 9. Das Kabel bauen
 
 **Ab hier ist der Pi ausgeschaltet** (`sudo poweroff` eingeben, warten bis die LED nicht mehr

@@ -132,11 +132,12 @@ class PioSink:
         self._process.wait(timeout=2)
 
 
-def make_sink(output):
+def make_sink(output, channels=8):
     kind = output.get("sink", "print")
     options = {k: v for k, v in output.items() if k != "sink"}
     if kind == "print":
         return PrintSink(**options)
+    options.setdefault("channels", channels)
     if kind == "pio":
         return PioSink(**options)
     if kind == "lgpio":

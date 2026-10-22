@@ -1,6 +1,7 @@
 CHANNEL_MIN_US = 1000
 CHANNEL_MAX_US = 2000
 CHANNEL_MID_US = 1500
+MIN_SYNC_US = 3000
 
 
 def clamp_us(value: float) -> int:
@@ -16,7 +17,7 @@ def frame_edges(channels_us, pulse_us=300, frame_us=22500, active_high=True):
     widths = [clamp_us(c) for c in channels_us]
     used = sum(widths)
     sync = frame_us - used
-    if sync < 3000:
+    if sync < MIN_SYNC_US:
         raise ValueError(f"frame_us {frame_us} too short for channels totalling {used} us")
     high, low = (1, 0) if active_high else (0, 1)
     edges = []
