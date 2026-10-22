@@ -27,7 +27,7 @@ if [ ${#missing[@]} -gt 0 ]; then
 fi
 
 python3 -m venv "$repo/.venv"
-"$repo/.venv/bin/pip" install -e "$repo[pi,dev]"
+"$repo/.venv/bin/pip" install -e "$repo[pi,dev,pygame]"
 
 if [ ! -d "$piolib/lib" ]; then
   build=$(mktemp -d)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Undo scripts/setup-pi.sh: reverts exactly what .install-state records (apt packages the
-# setup installed, input group, linger, user unit). With --delete-repo it also removes the
+# setup installed, input group, linger, user unit, desktop icons). With --delete-repo it also removes the
 # repo directory itself, including .venv, .piolib and config.yaml.
 set -euo pipefail
 
@@ -18,6 +18,9 @@ if [ -f "$state" ]; then
         rm -f "$value"
         systemctl --user daemon-reload
         echo "removed unit $value" ;;
+      file)
+        rm -f "$value"
+        echo "removed $value" ;;
       linger)
         loginctl disable-linger "$USER"
         echo "linger disabled" ;;

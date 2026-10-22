@@ -19,6 +19,8 @@ measuring); you run commands on the Pi and read the results.
 | `src/joystick_trainer/calibrate.py` | `joystick-trainer-calibrate`: interactive axis/direction/button detection, writes config |
 | `src/joystick_trainer/pygame_input.py` | optional pygame/SDL input (`input: pygame`), same interface as `joystick.py` |
 | `src/joystick_trainer/status.py`, `display.py` | UDP status from the main loop; `joystick-trainer-display` bar chart (pygame) |
+| `src/joystick_trainer/assistant.py`, `desktop.py`, `diagnose.py` | German guided setup, desktop icons, diagnose report |
+| `scripts/install.sh`, `assistent.sh`, `start.sh`, `keep-open.sh` | one-command install, assistant entry, icon launchers |
 | `src/joystick_trainer/mapper.py` | axis/button -> channel us (deadzone, expo, invert, unipolar, toggle) |
 | `src/joystick_trainer/sinks.py` | `print`, `lgpio` (software PPM, tested), `pio` (RP1 PIO helper, never run on a Pi) |
 | `src/joystick_trainer/ppm.py`, `ppmcheck.py` | PPM frame generation; analysis of a captured edge CSV |
@@ -30,6 +32,7 @@ measuring); you run commands on the Pi and read the results.
 | `docs/ANLEITUNG.md` | beginner guide (German) for people without Linux/GitHub knowledge; keep it in step with SETUP.md |
 | `docs/PYGAME.md` | add-on guide (German) for the pygame input |
 | `docs/DISPLAY.md` | add-on guide (German) for the Touch Display 2 channel display |
+| `docs/SCHNELLSTART.md` | German quick start with the assistant (for people without Linux knowledge) |
 | `docs/jack-measurement.md` | how the jack was measured, raw voltages, capture result |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
 | `docs/captures/` | raw captures referenced by the docs |
@@ -56,4 +59,7 @@ measuring); you run commands on the Pi and read the results.
 - Keep `setup-pi.sh` reversible: anything it changes outside the repo must be recorded in
   `.install-state` and undone by `uninstall-pi.sh`. Re-test install -> uninstall against a baseline
   (dpkg list, `/usr/local`, groups, linger, user units) after changing either script.
+- The assistant's steps mirror `docs/ANLEITUNG.md`/`SETUP.md`: change one, change the others.
+- If the person sends a `joystick-trainer-diagnose-*.txt`, read it first: it has the assistant's log,
+  configs, joysticks, display connectors and test results.
 - Run `.venv/bin/python -m pytest` before committing; on the Pi also the uinput test with sudo.

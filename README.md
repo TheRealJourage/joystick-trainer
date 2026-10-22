@@ -1,8 +1,9 @@
 # joystick-trainer
 
-> **Neu hier und keine Ahnung von GitHub oder Programmieren?** Lies
-> **[docs/ANLEITUNG.md](docs/ANLEITUNG.md)**: was das ist, was du kaufen musst und wie du es Schritt
-> für Schritt aufbaust (Deutsch, ohne Vorkenntnisse).
+> **Neu hier und keine Ahnung von Raspberry Pi oder Programmieren?**
+> - **[docs/SCHNELLSTART.md](docs/SCHNELLSTART.md)**: ein Befehl, danach führt dich ein Assistent auf
+>   Deutsch durch alles und prüft selbst nach.
+> - **[docs/ANLEITUNG.md](docs/ANLEITUNG.md)**: dasselbe zum Selbermachen, Schritt für Schritt erklärt.
 
 Fly an RC model with a USB joystick: a Raspberry Pi 5 reads the joystick and sends PPM into the
 trainer (DSC) jack of a RadioMaster Pocket (EdgeTX, Trainer = Master/Jack); the Pocket transmits to
@@ -33,6 +34,7 @@ ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md
 
 | File | Content |
 |------|---------|
+| `docs/SCHNELLSTART.md` | one-command install + German guided assistant, for people without Linux knowledge |
 | `docs/ANLEITUNG.md` | beginner guide in German, no prior knowledge needed |
 | `docs/PYGAME.md` | add-on guide (German): read the joystick through pygame instead of evdev |
 | `docs/DISPLAY.md` | add-on guide (German): live channel bars on a Raspberry Pi Touch Display 2 |
@@ -67,6 +69,17 @@ display powered from pins 2/6, the trainer cable's GND moves to pin 9. See `docs
 
 Channel count: `channels:` (default 8). It must fit the frame: `channels * 2000 + 3000 <= frame_us`,
 so at most 9 at 22.5 ms, 16 needs 35 ms. Checked when the config is loaded.
+
+## Guided setup
+
+`scripts/install.sh` (one command, clones into `~/joystick-trainer`) -> `scripts/assistent.sh` (runs
+`setup-pi.sh` if needed) -> `joystick-trainer-assistent`: German, step by step, progress in
+`.assistant-state` across reboots/power-offs. It checks what software can check: Pi model, input group,
+joystick present, full travel and rest positions after calibration, DSI display connected, the radio's
+PPM on the tip in Slave/Jack (wiring + polarity), pin back to input after sending. Desktop icons
+(start, calibrate, diagnose, resume) are recorded in `.install-state`; `joystick-trainer-diagnose`
+writes a report without network data. Tested on the Pi up to calibration with the Hotas X; the steps
+with the radio, the display and the desktop icons have not been run on real hardware/desktop yet.
 
 ## Tools
 

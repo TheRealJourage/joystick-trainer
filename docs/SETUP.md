@@ -260,3 +260,4 @@ The service itself has **not** been tested yet.
 | GPIO stayed an output after stopping | fixed; check with `pinctrl get 17` (should say `ip`) |
 | A background test process ignores Ctrl+C/SIGINT | non-interactive shells start `&` jobs with SIGINT ignored; use SIGTERM |
 | `pgrep -f` finds a process that isn't there | it matched the shell running pgrep |
+| Full throttle right after start (Hotas X, until the lever was moved) | the Hotas X reads 0 on every axis until first moved; fixed 2026-10-22: an axis counts only once it reported, unreported throttles send 1000 |

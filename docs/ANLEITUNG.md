@@ -6,6 +6,9 @@ Kabel und stellst etwas an deiner Fernsteuerung ein.
 
 Rechne mit **3–5 Stunden** für den ersten Aufbau (ohne Wartezeit auf Teile).
 
+**Lieber geführt?** Mit dem [Schnellstart](SCHNELLSTART.md) tippst du nur einen Befehl ein, danach
+führt dich ein Assistent durch alles und prüft selbst nach.
+
 Die technische Fassung mit allen Messwerten steht in [`SETUP.md`](SETUP.md) (Englisch). Diese Anleitung
 folgt derselben Reihenfolge und verweist dorthin, wenn du Details brauchst.
 

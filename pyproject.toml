@@ -15,6 +15,8 @@ joystick-trainer = "joystick_trainer.cli:main"
 ppmcheck = "joystick_trainer.ppmcheck:main"
 joystick-trainer-calibrate = "joystick_trainer.calibrate:main"
 joystick-trainer-display = "joystick_trainer.display:main"
+joystick-trainer-assistent = "joystick_trainer.assistant:main"
+joystick-trainer-diagnose = "joystick_trainer.diagnose:main"
 
 [build-system]
 requires = ["setuptools>=68"]

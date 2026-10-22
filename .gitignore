@@ -6,4 +6,7 @@ config.yaml
 native/ppm_pio
 native/ppm_pio_dump
 .install-state
+.assistant-state
+.assistant.log
+config.lgpio.yaml
 .piolib/
