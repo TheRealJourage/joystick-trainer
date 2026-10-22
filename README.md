@@ -1,5 +1,9 @@
 # joystick-trainer
 
+> **Neu hier und keine Ahnung von GitHub oder Programmieren?** Lies
+> **[docs/ANLEITUNG.md](docs/ANLEITUNG.md)**: was das ist, was du kaufen musst und wie du es Schritt
+> für Schritt aufbaust (Deutsch, ohne Vorkenntnisse).
+
 Fly an RC model with a USB joystick: a Raspberry Pi 5 reads the joystick and sends PPM into the
 trainer (DSC) jack of a RadioMaster Pocket (EdgeTX, Trainer = Master/Jack); the Pocket transmits to
 the model over its own link. A switch on the radio (SD) hands control back to the radio's sticks.
@@ -29,6 +33,7 @@ ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md
 
 | File | Content |
 |------|---------|
+| `docs/ANLEITUNG.md` | beginner guide in German, no prior knowledge needed |
 | `docs/SETUP.md` | the full procedure, values and gotchas |
 | `docs/jack-measurement.md` | measuring the DSC jack, raw results |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |

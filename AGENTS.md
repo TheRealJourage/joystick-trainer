@@ -25,6 +25,7 @@ measuring); you run commands on the Pi and read the results.
 | `scripts/capture_gpio.py` | record a GPIO as edge CSV (input only) - used to prove the radio's PPM |
 | `scripts/read_joy_windows.py` | read the Pocket as USB joystick on Windows (winmm, no install) |
 | `config.hotas-x.yaml` | verified config for the Thrustmaster T.Flight Hotas X |
+| `docs/ANLEITUNG.md` | beginner guide (German) for people without Linux/GitHub knowledge; keep it in step with SETUP.md |
 | `docs/jack-measurement.md` | how the jack was measured, raw voltages, capture result |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
 | `docs/captures/` | raw captures referenced by the docs |
