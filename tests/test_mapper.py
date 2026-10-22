@@ -50,3 +50,12 @@ def test_toggle_button_flips_on_press_edge():
 def test_defaults_apply_to_unmapped_channels():
     mapper = Mapper(Mapping(defaults_us={3: 1000}))
     assert mapper.channels(state_with())[2] == 1000
+
+
+def test_unreported_throttle_is_idle_even_when_inverted():
+    from joystick_trainer.mapper import AxisMap, Mapper, Mapping
+    from joystick_trainer.state import JoystickState
+
+    mapping = Mapping(axes=[AxisMap("ABS_X", 1), AxisMap("ABS_Z", 4, unipolar=True, invert=True)])
+    channels = Mapper(mapping).channels(JoystickState())
+    assert channels[0] == 1500 and channels[3] == 1000

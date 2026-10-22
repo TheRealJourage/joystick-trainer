@@ -7,7 +7,7 @@ from joystick_trainer import cli, config, pygame_input
 from joystick_trainer.calibrate import render_config
 from joystick_trainer.mapper import Mapper
 
-JOYDEVICEREMOVED, NOEVENT = 0x606, 0
+JOYDEVICEREMOVED, JOYAXISMOTION, NOEVENT = 0x606, 0x600, 0
 
 
 class FakeJoystickDevice:
@@ -44,6 +44,7 @@ def fake_pygame(monkeypatch):
     queue = []
     module = types.ModuleType("pygame")
     module.JOYDEVICEREMOVED = JOYDEVICEREMOVED
+    module.JOYAXISMOTION = JOYAXISMOTION
     module.display = types.SimpleNamespace(init=lambda: None)
     module.joystick = types.SimpleNamespace(init=lambda: None, quit=lambda: None,
                                             get_count=lambda: len(devices), Joystick=lambda i: devices[i])
@@ -62,15 +63,29 @@ def fake_pygame(monkeypatch):
     return module
 
 
+def motion(*axes):
+    return [types.SimpleNamespace(type=JOYAXISMOTION, instance_id=7, axis=a) for a in axes]
+
+
 def test_axes_and_buttons_are_read_by_index(fake_pygame):
     joystick = pygame_input.PygameJoystick("hotas", ["AXIS_0", "AXIS_2"], ["BUTTON_1"])
     device = fake_pygame.devices[0]
     device.axes[0], device.buttons[1] = 1.0, 1
+    fake_pygame.queue.extend(motion(0, 2))
     joystick.poll(0.02)
     assert joystick.state.axis("AXIS_0") == pytest.approx(1.0)
     assert joystick.state.axis("AXIS_2") == pytest.approx(1.0)
     assert joystick.state.button("BUTTON_1") is True
     assert not joystick.lost
+
+
+def test_axis_counts_only_after_its_first_motion(fake_pygame):
+    joystick = pygame_input.PygameJoystick("hotas", ["AXIS_0", "AXIS_1"], [])
+    joystick.poll(0.02)
+    assert joystick.state.axis("AXIS_0") is None
+    fake_pygame.queue.extend(motion(1))
+    joystick.poll(0.02)
+    assert joystick.state.axis("AXIS_0") is None and joystick.state.axis("AXIS_1") == pytest.approx(0.0)
 
 
 def test_unplugging_marks_the_joystick_lost(fake_pygame):
@@ -99,6 +114,8 @@ def test_calibrated_pygame_config_selects_the_pygame_backend(tmp_path, fake_pyga
     assert cfg["input"] == "pygame"
     assert cli.joystick_class(cfg["input"]) is pygame_input.PygameJoystick
     joystick = pygame_input.PygameJoystick(cfg["device"], ["AXIS_2"], ["BUTTON_0"])
+    fake_pygame.queue.extend(motion(2))
+    joystick.poll(0.02)
     # Hotas X throttle at idle reads +1.0 here, so the calibrated invert gives 1000 us.
     assert Mapper(cfg["mapping"]).channels(joystick.state)[2] == 1000
 

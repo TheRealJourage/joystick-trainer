@@ -31,8 +31,9 @@ class Joystick:
             code = ecodes.ecodes[name]
             if code not in absinfo:
                 raise ValueError(f"{self.device.name} has no axis {name}")
+            # The value at open is not used: the Hotas X reports 0 on every axis until it is first moved,
+            # which with its inverted throttle meant full throttle at start. An axis counts once it reports.
             self._axis_by_code[code] = (name, absinfo[code].min, absinfo[code].max)
-            self.state.set_axis(name, absinfo[code].value, absinfo[code].min, absinfo[code].max)
         for name in button_names:
             self._button_by_code[ecodes.ecodes[name]] = name
         self._ecodes = ecodes

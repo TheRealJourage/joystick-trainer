@@ -1,5 +1,5 @@
 """Joystick input through pygame (SDL) as an alternative to evdev (`input: pygame` in the config).
-Controls are named by SDL index: AXIS_<n>, BUTTON_<n>. Axes report -32767..32767."""
+Controls are named by SDL index: AXIS_<n>, BUTTON_<n>. Axes report -32767..32767, from their first motion on."""
 
 import os
 
@@ -54,6 +54,7 @@ class PygameJoystick:
         self._pygame = pygame
         self.state = JoystickState()
         self.lost = False
+        self._reported = set()   # axes SDL has sent motion for; before that its value is a placeholder
         self._axes = {name: control_index(name, "AXIS_") for name in axis_names}
         self._buttons = {name: control_index(name, "BUTTON_") for name in button_names}
         for name, index in self._axes.items():
@@ -66,17 +67,21 @@ class PygameJoystick:
 
     def _read(self):
         for name, index in self._axes.items():
-            self.state.set_axis(name, read_axis(self.device, index), -AXIS_SCALE, AXIS_SCALE)
+            if index in self._reported:
+                self.state.set_axis(name, read_axis(self.device, index), -AXIS_SCALE, AXIS_SCALE)
         for name, index in self._buttons.items():
             self.state.set_button(name, self.device.get_button(index))
 
     def poll(self, timeout):
         pygame = self._pygame
         events = [pygame.event.wait(int(timeout * 1000))] + pygame.event.get()
+        mine = self.device.get_instance_id()
         for event in events:
-            if event.type == pygame.JOYDEVICEREMOVED and event.instance_id == self.device.get_instance_id():
+            if event.type == pygame.JOYDEVICEREMOVED and event.instance_id == mine:
                 self.lost = True
                 return
+            if event.type == pygame.JOYAXISMOTION and event.instance_id == mine:
+                self._reported.add(event.axis)
         self._read()
 
     def close(self):

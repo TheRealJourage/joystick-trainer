@@ -57,6 +57,9 @@ class Mapper:
         for axis in self.mapping.axes:
             raw = state.axis(axis.source)
             if raw is None:
+                # Not reported yet: a throttle must not start anywhere but idle, whatever its invert.
+                if axis.unipolar:
+                    out[axis.channel - 1] = CHANNEL_MIN_US
                 continue
             if axis.unipolar:
                 level = (raw + 1.0) / 2.0
