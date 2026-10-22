@@ -260,6 +260,10 @@ der Pi weiß, welcher Hebel was ist.
 
 Erscheint gar nichts, wenn du den Joystick bewegst: Abschnitt 12.
 
+**Alternative:** Statt über Linux direkt kann der Pi den Joystick auch über **pygame** auslesen,
+z. B. wenn dein Joystick oder Gamepad hier nicht gefunden wird. Das steht in der Zusatzanleitung
+[`PYGAME.md`](PYGAME.md).
+
 ## 9. Das Kabel bauen
 
 **Ab hier ist der Pi ausgeschaltet** (`sudo poweroff` eingeben, warten bis die LED nicht mehr

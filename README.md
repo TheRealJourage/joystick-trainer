@@ -34,11 +34,19 @@ ring unconnected. Lead colours of plug cables vary: measure them (`docs/SETUP.md
 | File | Content |
 |------|---------|
 | `docs/ANLEITUNG.md` | beginner guide in German, no prior knowledge needed |
+| `docs/PYGAME.md` | add-on guide (German): read the joystick through pygame instead of evdev |
 | `docs/SETUP.md` | the full procedure, values and gotchas |
 | `docs/jack-measurement.md` | measuring the DSC jack, raw results |
 | `docs/edgetx-setup.md` | EdgeTX settings, Pocket-specific findings, kill switch |
 | `docs/parts-and-wiring.md` | parts and wiring |
 | `AGENTS.md` | notes for an AI assistant continuing this work |
+
+## Input backends
+
+- `evdev` (default): reads `/dev/input` directly. Tested end to end.
+- `pygame`: `input: pygame` in the config, controls named `AXIS_<n>`/`BUTTON_<n>`. Install with
+  `.venv/bin/pip install -e ".[pygame]"`, calibrate with `--input pygame`. Detection and reading
+  verified on the Pi with the Hotas X; calibration and sending through it not yet. See `docs/PYGAME.md`.
 
 ## Output backends
 
