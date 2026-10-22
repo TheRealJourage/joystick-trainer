@@ -15,8 +15,12 @@ def load(path):
     for item in mapping.axes + mapping.buttons:
         if not 1 <= item.channel <= mapping.channel_count:
             raise ValueError(f"{item.source}: channel {item.channel} outside 1..{mapping.channel_count}")
+    source = raw.get("input", "evdev")
+    if source not in ("evdev", "pygame"):
+        raise ValueError(f"input: {source!r}, expected evdev or pygame")
     return {
         "device": raw["device"],
+        "input": source,
         "mapping": mapping,
         "output": raw.get("output", {}),
         "on_lost": raw.get("on_lost", "stop"),

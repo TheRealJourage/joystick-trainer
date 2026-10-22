@@ -41,6 +41,14 @@ def run(cfg, sink, connect=Joystick):
             time.sleep(period)
 
 
+def joystick_class(source):
+    if source == "pygame":
+        from .pygame_input import PygameJoystick
+
+        return PygameJoystick
+    return Joystick
+
+
 def main():
     parser = argparse.ArgumentParser(prog="joystick-trainer")
     parser.add_argument("config")
@@ -50,7 +58,7 @@ def main():
     # SIGTERM (systemd stop, timeout) must close the sink too, or the GPIO stays an output.
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     try:
-        run(cfg, sink)
+        run(cfg, sink, connect=joystick_class(cfg["input"]))
     except KeyboardInterrupt:
         pass
     finally:

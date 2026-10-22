@@ -94,12 +94,16 @@ def code_name(table, code):
     return (specific or name)[0]
 
 
-def render_config(device_name, axes, buttons, output="print"):
+def render_config(device_name, axes, buttons, output="print", input_source="evdev"):
     """axes: [(role, channel, name, invert, unipolar)], buttons: [(role, channel, name)]."""
     expo = {"roll": 0.2, "pitch": 0.2}
     lines = [
         "# Written by joystick-trainer-calibrate. Re-run it instead of editing the mapping by hand.",
         f'device: "{device_name}"',
+    ]
+    if input_source == "pygame":
+        lines.append("input: pygame             # read the joystick through pygame/SDL instead of evdev")
+    lines += [
         "channels: 8",
         "rate_hz: 50",
         "on_lost: stop             # stop = emit no PPM; neutral = emit defaults_us",
@@ -204,6 +208,61 @@ def find_joysticks():
     return found
 
 
+def evdev_device(selector):
+    from evdev import ecodes
+
+    from .joystick import find_device
+
+    if selector:
+        device = find_device(selector)
+    else:
+        candidates = find_joysticks()
+        if len(candidates) != 1:
+            names = ", ".join(f"{d.path} {d.name!r}" for d in candidates) or "none"
+            sys.exit(f"found {len(candidates)} joysticks ({names}); pick one with --device")
+        device = candidates[0]
+    absinfo = dict(device.capabilities().get(ecodes.EV_ABS, []))
+    ranges = {code: (info.min, info.max) for code, info in absinfo.items()}
+    return device.name, Wizard(
+        ranges=ranges,
+        read_axes=lambda: {code: device.absinfo(code).value for code in ranges},
+        read_keys=lambda: set(device.active_keys()),
+        axis_names=lambda code: code_name(ecodes.ABS, code),
+        key_names=lambda code: code_name(ecodes.BTN, code) if code in ecodes.BTN else code_name(ecodes.KEY, code),
+    )
+
+
+def pygame_device(selector):
+    from . import pygame_input
+
+    if selector:
+        device = pygame_input.find_joystick(selector)
+    else:
+        candidates = pygame_input.list_joysticks()
+        if len(candidates) != 1:
+            names = ", ".join(repr(d.get_name()) for d in candidates) or "none"
+            sys.exit(f"found {len(candidates)} joysticks ({names}); pick one with --device")
+        device = candidates[0]
+    import pygame
+
+    def read_axes():
+        pygame.event.get()   # SDL updates the joystick state while it processes its event queue
+        return {i: pygame_input.read_axis(device, i) for i in range(device.get_numaxes())}
+
+    def read_keys():
+        pygame.event.get()
+        return {i for i in range(device.get_numbuttons()) if device.get_button(i)}
+
+    scale = pygame_input.AXIS_SCALE
+    return device.get_name(), Wizard(
+        ranges={i: (-scale, scale) for i in range(device.get_numaxes())},
+        read_axes=read_axes,
+        read_keys=read_keys,
+        axis_names=lambda i: f"AXIS_{i}",
+        key_names=lambda i: f"BUTTON_{i}",
+    )
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="joystick-trainer-calibrate",
                                      description="Detect axes, directions and the arm button; write a config.")
@@ -211,37 +270,19 @@ def main(argv=None):
     parser.add_argument("--device", help="name substring or /dev/input/eventN (default: the only joystick)")
     parser.add_argument("--output", choices=["print", "lgpio"], default="print",
                         help="print = dry run (default); lgpio = measured Pocket values, GPIO17")
+    parser.add_argument("--input", choices=["evdev", "pygame"], default="evdev",
+                        help="how to read the joystick: evdev (default, tested) or pygame (pip install pygame)")
     parser.add_argument("--force", action="store_true", help="overwrite an existing file")
     args = parser.parse_args(argv)
 
     if os.path.exists(args.out) and not args.force:
         sys.exit(f"{args.out} exists; use --force to overwrite")
 
-    from evdev import ecodes
-
-    from .joystick import find_device
-
-    if args.device:
-        device = find_device(args.device)
-    else:
-        candidates = find_joysticks()
-        if len(candidates) != 1:
-            names = ", ".join(f"{d.path} {d.name!r}" for d in candidates) or "none"
-            sys.exit(f"found {len(candidates)} joysticks ({names}); pick one with --device")
-        device = candidates[0]
-    print(f"Calibrating {device.name!r} ({device.path}). Answer each prompt once the control is in place.")
-
-    absinfo = dict(device.capabilities().get(ecodes.EV_ABS, []))
-    ranges = {code: (info.min, info.max) for code, info in absinfo.items()}
-    wizard = Wizard(
-        ranges=ranges,
-        read_axes=lambda: {code: device.absinfo(code).value for code in ranges},
-        read_keys=lambda: set(device.active_keys()),
-        axis_names=lambda code: code_name(ecodes.ABS, code),
-        key_names=lambda code: code_name(ecodes.BTN, code) if code in ecodes.BTN else code_name(ecodes.KEY, code),
-    )
+    open_device = pygame_device if args.input == "pygame" else evdev_device
+    name, wizard = open_device(args.device)
+    print(f"Calibrating {name!r}. Answer each prompt once the control is in place.")
     axes, buttons = wizard.run()
-    text = render_config(device.name, axes, buttons, args.output)
+    text = render_config(name, axes, buttons, args.output, args.input)
     with open(args.out, "w") as handle:
         handle.write(text)
     print(f"\nwrote {args.out}:\n\n{text}")

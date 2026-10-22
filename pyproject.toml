@@ -8,6 +8,7 @@ dependencies = ["evdev", "pyyaml"]
 [project.optional-dependencies]
 pi = ["rpi-lgpio"]
 dev = ["pytest"]
+pygame = ["pygame"]
 
 [project.scripts]
 joystick-trainer = "joystick_trainer.cli:main"
